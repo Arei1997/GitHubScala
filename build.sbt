@@ -21,6 +21,7 @@ libraryDependencies ++= Seq(
   ws,
   "org.typelevel"                %% "cats-core"                 % "2.3.0"
 )
+libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "4.8.0"
 
 
 // Adds additional packages into Twirl
