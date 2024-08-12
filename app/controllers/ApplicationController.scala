@@ -1,24 +1,19 @@
 package controllers
-import model.{APIError, User}
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
 
-import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import model.{APIError, User}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, BaseController}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc._
-import play.filters.csrf.CSRF
 import repository.DataRepository
 import service.LibraryService
 
-import javax.inject._
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationController @Inject()(
                                        val controllerComponents: ControllerComponents,
                                        dataRepository: DataRepository,
-                                       libraryService: LibraryService,
-
+                                       libraryService: LibraryService
                                      )(implicit ec: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
   def index(): Action[AnyContent] = Action.async { implicit request =>
@@ -35,19 +30,26 @@ class ApplicationController @Inject()(
           case Right(createdUser) => Created(Json.toJson(createdUser))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
-      case JsError(errors) => Future.successful(BadRequest(Json.obj("errors" -> errors.toString)))
+      case JsError(errors) =>
+        Future.successful(BadRequest(Json.obj("errors" -> errors.toString)))
     }
   }
-  def getGitHubUser(username: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+
+  def getGitHubUser(username: String): Action[AnyContent] = Action.async { implicit request =>
     libraryService.getGithubUser(username).value.map {
-      case Right(user) => Ok(views.html.gitHubUser(user))
-      case Left(APIError.BadAPIResponse(status, message)) => Status(status)(Json.obj("error" -> message))
+      case Right(user) => Ok(Json.toJson(user))  // Render user as JSON
+      case Left(APIError.BadAPIResponse(status, message)) =>
+        Status(status)(Json.obj("error" -> message))
+    }.recover {
+      case ex: Exception => InternalServerError(Json.obj("error" -> ex.getMessage))
     }
   }
+
   def read(login: String): Action[AnyContent] = Action.async { implicit request =>
     dataRepository.read(login).map {
       case Right(user) => Ok(Json.toJson(user))
-      case Left(error) => Status(if (error.upstreamStatus == 404) NOT_FOUND else INTERNAL_SERVER_ERROR)(Json.toJson(error.reason))
+      case Left(error) =>
+        Status(if (error.upstreamStatus == 404) NOT_FOUND else INTERNAL_SERVER_ERROR)(Json.toJson(error.reason))
     }
   }
 
@@ -59,7 +61,8 @@ class ApplicationController @Inject()(
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
           case _ => NotFound
         }
-      case JsError(errors) => Future.successful(BadRequest(Json.obj("errors" -> errors.toString)))
+      case JsError(errors) =>
+        Future.successful(BadRequest(Json.obj("errors" -> errors.toString)))
     }
   }
 

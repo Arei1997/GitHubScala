@@ -1,13 +1,14 @@
 @import model.User
+
 @(user: User)
 
-@main("my github user") {
-<h1>Book Details</h1>
+@main("GitHub User") {
+<h1>User Details</h1>
 <div>
     <h2>@user.login</h2>
-    <p><strong>:createdAt</strong> @user.created_at</p>
-    <p><strong>location:</strong> @user.location</p>
-    <p><strong>followers:</strong> @user.followers</p>
-    <p><strong>following:</strong> @user.following</p>
+    <p><strong>Created at:</strong> @user.created_at</p>
+    <p><strong>Location:</strong> @user.location.getOrElse("Unknown")</p>
+    <p><strong>Followers:</strong> @user.followers</p>
+    <p><strong>Following:</strong> @user.following</p>
 </div>
 }
