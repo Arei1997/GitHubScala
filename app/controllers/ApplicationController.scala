@@ -1,11 +1,9 @@
 package controllers
+import model.{APIError, User}
 import play.api.mvc.{Action, AnyContent, ControllerComponents}
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
-import controllers.models.{APIError, DataModel}
-import views.html.myGoogleBook
-import controllers.models.{APIError, DataModel}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
 import play.filters.csrf.CSRF
@@ -31,27 +29,32 @@ class ApplicationController @Inject()(
   }
 
   def create(): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    request.body.validate[DataModel] match {
-      case JsSuccess(dataModel, _) =>
-        dataRepository.create(dataModel).map {
-          case Right(book) => Created(Json.toJson(book))
+    request.body.validate[User] match {
+      case JsSuccess(user, _) =>
+        dataRepository.create(user).map {
+          case Right(createdUser) => Created(Json.toJson(createdUser))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       case JsError(errors) => Future.successful(BadRequest(Json.obj("errors" -> errors.toString)))
     }
   }
-
-  def read(id: String): Action[AnyContent] = Action.async { implicit request =>
-    dataRepository.read(id).map {
-      case Right(dataModel) => Ok(Json.toJson(dataModel))
+  def getGitHubUser(username: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
+    libraryService.getGithubUser(username).value.map {
+      case Right(user) => Ok(views.html.gitHubUser(user))
+      case Left(APIError.BadAPIResponse(status, message)) => Status(status)(Json.obj("error" -> message))
+    }
+  }
+  def read(login: String): Action[AnyContent] = Action.async { implicit request =>
+    dataRepository.read(login).map {
+      case Right(user) => Ok(Json.toJson(user))
       case Left(error) => Status(if (error.upstreamStatus == 404) NOT_FOUND else INTERNAL_SERVER_ERROR)(Json.toJson(error.reason))
     }
   }
 
-  def update(id: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
-    request.body.validate[DataModel] match {
-      case JsSuccess(dataModel, _) =>
-        dataRepository.update(id, dataModel).map {
+  def update(login: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[User] match {
+      case JsSuccess(user, _) =>
+        dataRepository.update(login, user).map {
           case Right(count) if count > 0 => Accepted
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
           case _ => NotFound
@@ -60,11 +63,11 @@ class ApplicationController @Inject()(
     }
   }
 
-  def delete(id: String): Action[AnyContent] = Action.async { implicit request =>
-    if (id.trim.isEmpty) {
+  def delete(login: String): Action[AnyContent] = Action.async { implicit request =>
+    if (login.trim.isEmpty) {
       Future.successful(BadRequest(Json.obj("error" -> "Invalid ID")))
     } else {
-      dataRepository.delete(id).map {
+      dataRepository.delete(login).map {
         case Right(count) if count > 0 => Accepted
         case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         case _ => NotFound

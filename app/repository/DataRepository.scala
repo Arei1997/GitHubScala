@@ -16,12 +16,12 @@ import scala.concurrent.{ExecutionContext, Future}
 //trait MockRepositoryTrait {
 //  def index(): Future[Either[APIError.BadAPIResponse, Seq[User]]]
 //  def create(user: User: Future[Either[APIError.BadAPIResponse, User]]
-//  def read(id: String): Future[Either[APIError.BadAPIResponse, User]]
-//  def update(id: String, book: User): Future[Either[APIError.BadAPIResponse, Long]]
-//  def delete(id: String): Future[Either[APIError.BadAPIResponse, Long]]
+//  def read(login: String): Future[Either[APIError.BadAPIResponse, User]]
+//  def update(login: String, book: User): Future[Either[APIError.BadAPIResponse, Long]]
+//  def delete(login: String): Future[Either[APIError.BadAPIResponse, Long]]
 //  def deleteAll(): Future[Unit]
 //  def findByName(name: String): Future[Either[APIError.BadAPIResponse, Seq[User]]]
-//  def updateField(id: String, fieldName: String, newValue: JsValue): Future[Either[APIError.BadAPIResponse, Long]]
+//  def updateField(login: String, fieldName: String, newValue: JsValue): Future[Either[APIError.BadAPIResponse, Long]]
 //}
 
 @Singleton
@@ -32,7 +32,7 @@ class DataRepository @Inject() (
   mongoComponent = mongoComponent,
   domainFormat = User.format, // Ensure this is correctly referenced
   indexes = Seq(IndexModel(
-    Indexes.ascending("_id")
+    Indexes.ascending("login")
   )),
   replaceIndexes = false
 ) {
@@ -51,14 +51,14 @@ class DataRepository @Inject() (
       }.map(_ => Right(user))
 
 
-  private def byID(id: String): Bson =
+  private def byID(login: String): Bson =
     Filters.and(
-      Filters.equal("_id", id)
+      Filters.equal("login", login)
     )
 
 
-  def read(id: String): Future[Either[APIError.BadAPIResponse, User]] = {
-    collection.find(equal("_id", id)).headOption().map {
+  def read(login: String): Future[Either[APIError.BadAPIResponse, User]] = {
+    collection.find(equal("login", login)).headOption().map {
       case Some(user: User) => Right(user)
       case None => Left(APIError.BadAPIResponse(404, "User not found"))
     }.recover {
@@ -67,9 +67,9 @@ class DataRepository @Inject() (
   }
 
 
-  def update(id: String, user: User): Future[Either[APIError.BadAPIResponse, Long]] =
+  def update(login: String, user: User): Future[Either[APIError.BadAPIResponse, Long]] =
     collection.replaceOne(
-      filter = byID(id),
+      filter = byID(login),
       replacement = user,
       options = new ReplaceOptions().upsert(true)
     ).toFuture().map { updateResult =>
@@ -78,9 +78,9 @@ class DataRepository @Inject() (
     }
 
 
-  def delete(id: String): Future[Either[APIError.BadAPIResponse, Long]] =
+  def delete(login: String): Future[Either[APIError.BadAPIResponse, Long]] =
     collection.deleteOne(
-      filter = byID(id)
+      filter = byID(login)
     ).toFuture().map { deleteResult =>
       if (deleteResult.getDeletedCount > 0) Right(deleteResult.getDeletedCount)
       else Left(APIError.BadAPIResponse(404, "User not found"))

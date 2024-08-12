@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/githubTutorial.iml" filepath="$PROJECT_DIR$/.idea/modules/githubTutorial.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/githubTutorial.githubTutorial-build.iml" filepath="$PROJECT_DIR$/.idea/modules/githubTutorial.githubTutorial-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitHubScala.iml" filepath="$PROJECT_DIR$/.idea/modules/GitHubScala.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/GitHubScala.GitHubScala-build.iml" filepath="$PROJECT_DIR$/.idea/modules/GitHubScala.GitHubScala-build.iml" />
     </modules>
   </component>
 </project>
