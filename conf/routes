@@ -4,17 +4,17 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                               controllers.HomeController.index()
+GET     /                           controllers.HomeController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file                   controllers.Assets.versioned(path="/public", file: Asset)
+GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
-# GitHub User API
 GET     /api/github/users/:username     controllers.ApplicationController.getGitHubUser(username: String)
 
-# RESTful API for User
-GET     /api                            controllers.ApplicationController.index()
-POST    /api/create                     controllers.ApplicationController.create()
-GET     /api/:login                     controllers.ApplicationController.read(login: String)
-PUT     /api/:login                     controllers.ApplicationController.update(login: String)
-DELETE  /api/:login                     controllers.ApplicationController.delete(login: String)
+GET     /api                        controllers.ApplicationController.index
+POST    /api/create                 controllers.ApplicationController.create()
+GET     /api/:login                   controllers.ApplicationController.read(login: String)
+PUT     /api/:login                    controllers.ApplicationController.update(login: String)
+DELETE  /api/:login                    controllers.ApplicationController.delete(login: String)
+
+

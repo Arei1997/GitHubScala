@@ -24,10 +24,9 @@ libraryDependencies ++= Seq(
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "4.8.0"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.17" % Test
 
-libraryDependencies += "com.typesafe.play" %% "twirl-api" % "1.5.1"
 
 // Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.example.controllers._"
+TwirlKeys.templateImports += "com.example.controllers._"
 
 // Adds additional packages into conf/routes
- //Play.sbt.routes.RoutesKeys.routesImport += "com.example.binders._"
+ play.sbt.routes.RoutesKeys.routesImport += "com.example.binders._"
