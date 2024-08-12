@@ -1,5 +1,6 @@
 package controllers
 
+import model.APIError
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
 import service.LibraryService
@@ -11,12 +12,11 @@ import scala.concurrent.ExecutionContext
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents, libraryService: LibraryService)(implicit ec: ExecutionContext) extends BaseController {
 
   def getGitHubUser(username: String): Action[AnyContent] = Action.async { implicit request: Request[AnyContent] =>
-    libraryService.getGitHubUser(username).map {
-      case Some(user) => Ok(Json.toJson(user))
-      case None => NotFound(Json.obj("error" -> "User not found"))
+    libraryService.getGithubUser(username).value.map {
+      case Right(user) => Ok(views.html.gitHubUser(user))
+      case Left(APIError.BadAPIResponse(status, message)) => Status(status)(Json.obj("error" -> message))
     }
   }
-
 
   def index(): Action[AnyContent] = TODO
   def create(): Action[AnyContent] = TODO
