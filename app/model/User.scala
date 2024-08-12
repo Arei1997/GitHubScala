@@ -1,12 +1,15 @@
 package model
 
-import org.mongodb.scala.bson.ObjectId
+import play.api.libs.json.{Json, OFormat}
 
 case class User(
-                 _id: ObjectId = new ObjectId(),
-                 username: String,
-                 createdAt: String,
+                 login: String,
+                 created_at: String,
                  location: Option[String],
                  followers: Int,
                  following: Int
                )
+
+object User {
+  implicit val format: OFormat[User] = Json.format[User]
+}

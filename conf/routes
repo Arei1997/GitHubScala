@@ -9,9 +9,7 @@ GET     /                           controllers.HomeController.index
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 
+GET     /github/users/:username     controllers.ApplicationController.getGitHubUser(username: String)
 
-GET           /api          controllers.ApplicationController.index
-POST         /api           controllers.ApplicationController.create
-GET         /route/:id     controllers.ApplicationController.read(id: String)
-PUT        /route/:id     controllers.ApplicationController.update(id: String)
-DELETE    /route/:id     controllers.ApplicationController.delete(id: String)
+
+
