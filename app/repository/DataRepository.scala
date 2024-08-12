@@ -35,21 +35,20 @@ class DataRepository @Inject() (
     Indexes.ascending("_id")
   )),
   replaceIndexes = false
-)  {
+) {
 
   def index(): Future[Either[APIError.BadAPIResponse, Seq[User]]] =
     collection.find().toFuture().map {
-      case books: Seq[User] => Right(books)
+      case users: Seq[User] => Right(users)
       case _ => Left(APIError.BadAPIResponse(404, "Books cannot be found"))
     }
 
-  def create(book: User): Future[Either[APIError.BadAPIResponse, User]] =
+  def create(user: User): Future[Either[APIError.BadAPIResponse, User]] =
     collection
-      .insertOne(book)
+      .insertOne(user)
       .toFuture()
-      .map { _ =>Right(book)
-      }.map(_ => Right(book))
-
+      .map { _ => Right(user)
+      }.map(_ => Right(user))
 
 
   private def byID(id: String): Bson =
@@ -68,15 +67,10 @@ class DataRepository @Inject() (
   }
 
 
-
-
-
-
-
-  def update(id: String, book: User): Future[Either[APIError.BadAPIResponse, Long]] =
+  def update(id: String, user: User): Future[Either[APIError.BadAPIResponse, Long]] =
     collection.replaceOne(
       filter = byID(id),
-      replacement = book,
+      replacement = user,
       options = new ReplaceOptions().upsert(true)
     ).toFuture().map { updateResult =>
       if (updateResult.getModifiedCount > 0) Right(updateResult.getModifiedCount)
@@ -94,9 +88,6 @@ class DataRepository @Inject() (
 
 
   def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ()) //Hint: needed for tests
-
-
-
 
 
 }
